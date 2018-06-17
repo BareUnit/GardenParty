@@ -1,9 +1,9 @@
 #include "Arduino.h"
 #include "OneWire.h"
+#include "Wire.h"
 #include "DallasTemperature.h"
 #include "ESP8266WiFi.h"
-#include "Adafruit_Sensor.h"
-#include "Adafruit_BME280.h"
+#include "BME280I2C.h"
 
 // Pin definitions
 #define pinAnalogMoistureSensor A0
@@ -14,6 +14,10 @@
 #define pinBME280scl D1
 #define pinBME280sda D2
 #define i2cclock 100000
+
+
+// BME280 definition
+BME280I2C bme;
 
 // Relay module states ON/OFF
 #define RelayOn 0
@@ -29,16 +33,6 @@
 volatile int PulseCount = 0;
 volatile int CurrentSoilMoisture = 1024;
 
-// BME280 init
-Adafruit_BME280 bme; // I2C
-float h, t, p, pin, dp;
-char temperatureFString[6];
-char dpString[6];
-char humidityString[6];
-char pressureString[7];
-char pressureInchString[6];
-
-
 // enum for program states
 enum States { INIT, MEASURE, START_WATERING, WATERING, STOP_WATERING, SEND_DATA, SLEEP};
 States state = INIT;
@@ -48,8 +42,8 @@ struct SoilMeasurement {
 	float Soil_Temperature;
 	int Soil_Moisture;
 	float Air_Temperature;
-	int Air_Pressure;
-	int Humidity;
+	float Air_Pressure;
+	float Humidity;
 };
 
 SoilMeasurement SoilMeasurementSample = {0,0,0,0,0};
@@ -111,52 +105,41 @@ int Get_AverageSoilMoisture() {
 	  return AverageSoilMoisture;
 }
 
+void Read_BME280_Data() {
+
+	   BME280::TempUnit tempUnit(BME280::TempUnit_Celsius);
+	   BME280::PresUnit presUnit(BME280::PresUnit_Pa);
+
+	   bme.read(SoilMeasurementSample.Air_Pressure , SoilMeasurementSample.Air_Temperature, SoilMeasurementSample.Humidity, tempUnit, presUnit);
+}
+
 // !!! To be implemented
 float Get_AirTemperature() {
-	return 0; // replace 0 with return variable
+	return SoilMeasurementSample.Air_Temperature;
 }
 
 // !!! To be implemented
-int Get_AirPressure() {
-	return 0; // replace 0 with return variable
+float Get_AirPressure() {
+	return SoilMeasurementSample.Air_Pressure;
 }
 
 // !!! To be implemented
-int Get_Humidity() {
-	return 0; // replace 0 with return variable
+float Get_Humidity() {
+	return SoilMeasurementSample.Humidity;
 }
 
 void getWeather() {
-
-    h = bme.readHumidity();
-    t = bme.readTemperature();
-    t = t*1.8+32.0;
-    dp = t-0.36*(100.0-h);
-
-    p = bme.readPressure()/100.0F;
-    pin = 0.02953*p;
-    dtostrf(t, 5, 1, temperatureFString);
-    dtostrf(h, 5, 1, humidityString);
-    dtostrf(p, 6, 1, pressureString);
-    dtostrf(pin, 5, 2, pressureInchString);
-    dtostrf(dp, 5, 1, dpString);
-    delay(100);
 
 }
 
 // Get measured values - soil moisture, soil temperature, humidity, air pressure, air temperature
 void Get_SoilConditions() {
 	SoilMeasurementSample = {Get_SoilTemperature(),Get_AverageSoilMoisture(),Get_AirTemperature(),Get_AirPressure(),Get_Humidity()};
-	getWeather();
 	Serial.print("Teplota pudy   : "); Serial.println(SoilMeasurementSample.Soil_Temperature);
 	Serial.print("Vlhkost pudy   : "); Serial.println(SoilMeasurementSample.Soil_Moisture);
-	//Serial.print("Teplota vzduchu: "); Serial.println(SoilMeasurementSample.Air_Temperature);
-	//Serial.print("Tlak vzduchu   : "); Serial.println(SoilMeasurementSample.Air_Pressure);
-	//Serial.print("Vlhkost vzduchu: "); Serial.println(SoilMeasurementSample.Humidity);
-
-	Serial.print("Teplota vzduchu: "); Serial.println(temperatureFString);
-	Serial.print("Tlak vzduchu   : "); Serial.println(humidityString);
-	Serial.print("Vlhkost vzduchu: "); Serial.println(pressureString);
+	Serial.print("Teplota vzduchu: "); Serial.println(SoilMeasurementSample.Air_Temperature);
+	Serial.print("Tlak vzduchu   : "); Serial.println(SoilMeasurementSample.Air_Pressure);
+	Serial.print("Vlhkost vzduchu: "); Serial.println(SoilMeasurementSample.Humidity);
 }
 
 void ClearSessionVariables() {
@@ -183,9 +166,8 @@ void setup(void) {
   // disable power to soil thermometer
   digitalWrite(pinMoistureSensorPower, 0);
   // initiate i2c bus
-  Wire.begin(pinBME280scl, pinBME280sda);
-  Wire.setClock(i2cclock);
   SoilThermometer.begin();
+  Wire.begin();
   state = INIT;
 }
 

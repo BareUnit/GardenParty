@@ -3,7 +3,9 @@
 #include "Wire.h"
 #include "DallasTemperature.h"
 #include "ESP8266WiFi.h"
-#include "BME280I2C.h"
+#include "Adafruit_Sensor.h"
+#include "Adafruit_BME280.h"
+#include "PubSubClient.h"
 
 // Pin definitions
 #define pinAnalogMoistureSensor A0
@@ -16,8 +18,22 @@
 #define i2cclock 100000
 
 
+// WIFI
+const char* ssid = "Print.RedFrog.Lan";
+const char* wifi_password = "Password.01";
+WiFiClient wifiClient;
+
+// MQTT
+const char* mqtt_server = "192.168.10.210";
+const char* mqtt_topic = "garden/bed";
+const char* mqtt_username = "imodule1";
+const char* mqtt_password = "imodule1";
+// The client id identifies the ESP8266 device. Think of it a bit like a hostname (Or just a name, like Greg).
+const char* clientID = "iModule1";
+PubSubClient client(mqtt_server, 1883, wifiClient); // 1883 is the listener port for the Broker
+
 // BME280 definition
-BME280I2C bme;
+Adafruit_BME280 bme; // I2C
 
 // Relay module states ON/OFF
 #define RelayOn 0
@@ -105,30 +121,22 @@ int Get_AverageSoilMoisture() {
 	  return AverageSoilMoisture;
 }
 
-void Read_BME280_Data() {
-
-	   BME280::TempUnit tempUnit(BME280::TempUnit_Celsius);
-	   BME280::PresUnit presUnit(BME280::PresUnit_Pa);
-
-	   bme.read(SoilMeasurementSample.Air_Pressure , SoilMeasurementSample.Air_Temperature, SoilMeasurementSample.Humidity, tempUnit, presUnit);
-}
-
 // !!! To be implemented
 float Get_AirTemperature() {
-	return SoilMeasurementSample.Air_Temperature;
+	return bme.readTemperature();
 }
 
 // !!! To be implemented
 float Get_AirPressure() {
-	return SoilMeasurementSample.Air_Pressure;
+	return bme.readPressure();
 }
 
 // !!! To be implemented
 float Get_Humidity() {
-	return SoilMeasurementSample.Humidity;
+	return bme.readHumidity();
 }
 
-void getWeather() {
+void Get_GardenConditions() {
 
 }
 
@@ -166,9 +174,14 @@ void setup(void) {
   // disable power to soil thermometer
   digitalWrite(pinMoistureSensorPower, 0);
   // initiate i2c bus
-  SoilThermometer.begin();
-  Wire.begin();
+  //SoilThermometer.begin();
   state = INIT;
+
+  bool status = bme.begin();
+  if (!status) {
+      Serial.println("Could not find a valid BME280 sensor, check wiring!");
+      while (1);
+  }
 }
 
 void loop(void) {
@@ -207,6 +220,37 @@ void loop(void) {
 		break;
 	case SEND_DATA: // create structure and send data to Raspberry PI with MQTT
 		Serial.println("Odesilam data ...");
+		 WiFi.mode(WIFI_STA);
+		  WiFi.hostname("ESP8266");
+		  WiFi.begin(ssid, wifi_password);
+		  while (WiFi.status() != WL_CONNECTED) {
+		      delay(500);
+		      Serial.print(".");
+		  }
+		  Serial.println("");
+		  Serial.print("Pripojeno k WiFi siti ");
+		  Serial.println("Print.RedFrog.Lan");
+		  Serial.print("IP adresa: ");
+		  Serial.println(WiFi.localIP());
+
+		  // Connect to MQTT Broker
+		  if (client.connect(clientID, mqtt_username, mqtt_password)) {
+		    Serial.println("Connected to MQTT Broker!");
+		  }
+		  else {
+		    Serial.println("Connection to MQTT Broker failed...");
+		  }
+		char mqttmessage[8];
+		dtostrf(SoilMeasurementSample.Air_Temperature,6,2,mqttmessage);
+		if (client.publish(mqtt_topic, mqttmessage)) {
+			Serial.println("Air Temperature sent to MQTT broker");
+		}
+		else {
+			Serial.println("Message failed to send. Reconnecting to MQTT Broker and trying again");
+			client.connect(clientID, mqtt_username, mqtt_password);
+			delay(10); // This delay ensures that client.publish doesn't clash with the client.connect call
+			client.publish(mqtt_topic, mqttmessage);
+		}
 		state = SLEEP;
 		break;
 	case SLEEP:

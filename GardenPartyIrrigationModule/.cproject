@@ -26,7 +26,10 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/GardenPartyIrrigationModule/libraries/OneWire}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/GardenPartyIrrigationModule/libraries/SPI}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/GardenPartyIrrigationModule/libraries/Wire}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/GardenPartyIrrigationModule/libraries/Adafruit_Unified_Sensor}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/GardenPartyIrrigationModule/libraries/BME280/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/GardenPartyIrrigationModule/libraries/Adafruit_BME280_Library}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/GardenPartyIrrigationModule/libraries/PubSubClient/src}&quot;"/>
 								</option>
 								<inputType id="io.sloeber.compiler.cpp.sketch.input.1458009846" name="CPP source files" superClass="io.sloeber.compiler.cpp.sketch.input"/>
 							</tool>
@@ -39,7 +42,10 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/GardenPartyIrrigationModule/libraries/OneWire}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/GardenPartyIrrigationModule/libraries/SPI}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/GardenPartyIrrigationModule/libraries/Wire}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/GardenPartyIrrigationModule/libraries/Adafruit_Unified_Sensor}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/GardenPartyIrrigationModule/libraries/BME280/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/GardenPartyIrrigationModule/libraries/Adafruit_BME280_Library}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/GardenPartyIrrigationModule/libraries/PubSubClient/src}&quot;"/>
 								</option>
 								<inputType id="io.sloeber.compiler.c.sketch.input.93076912" name="C Source Files" superClass="io.sloeber.compiler.c.sketch.input"/>
 							</tool>
@@ -52,7 +58,10 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/GardenPartyIrrigationModule/libraries/OneWire}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/GardenPartyIrrigationModule/libraries/SPI}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/GardenPartyIrrigationModule/libraries/Wire}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/GardenPartyIrrigationModule/libraries/Adafruit_Unified_Sensor}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/GardenPartyIrrigationModule/libraries/BME280/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/GardenPartyIrrigationModule/libraries/Adafruit_BME280_Library}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/GardenPartyIrrigationModule/libraries/PubSubClient/src}&quot;"/>
 								</option>
 								<inputType id="io.sloeber.compiler.S.sketch.input.1262166238" name="Assembly source files" superClass="io.sloeber.compiler.S.sketch.input"/>
 							</tool>
